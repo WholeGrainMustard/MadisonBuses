@@ -8,12 +8,18 @@ The config.py file holds code for a config object that is used to read in the co
 
 The config.txt file holds the actual configuration information for the processes preformed by the other scripts. 
 
+The createMaps.ipynb is the jupyter notebook file used to create individual maps.
+
 The downtimeCheck.py file contains a function to check if there is bus data coming in or not and to sleep the processes collecting data if no data is coming in, i.e. at night.
 
 The getData.py file contains functions to make the API requests to Madison Metro and to write the response to a JSON file.
 
 The grabWeather.py file contains methods to scrap the weather.gov website for the Madison area and retrieve the time of the request, the temperature, the relative humidity, the weather field, and the windchill and save the data to a csv.
 
+The keplerConfig.py file contains a function for create the dictionary used to input configurations for KelperGL.
+
 The metroClasses.py file contains code of classes and methods to contain the data collected from the Madison Metro API.
 
 The processController.py file will run continuously until interrupted, once initiated. This file attempts to collect bus data every 10 seconds and weather data every 50 seconds, while data is coming in. 
+
+The trafficMaps.yaml file is the conda environment used to run all python scripts and the jupyter notebook.
