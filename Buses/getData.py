@@ -8,11 +8,44 @@ Last edited: 03/22/25
 import datetime as dt
 import requests
 from config import Config
+import math
+
+def repeaterCheck(APIkey,routeList): # working to handle multiple requests
+    #print(APIkey,len(routeList))
+
+    if len(routeList)>10:  
+        repeats=math.ceil(len(routeList)/10)
+        #print(f'Repeats:{repeats}')
+
+        outList=[]
+        start=0
+        end=9
+        while repeats>0:
+            shortList=routeList[start:end]
+            #print(shortList)
+            response=requestBuses(APIkey,shortList)
+            #print(response)
+            outList.extend(response)
+            #print(len(outList))
+            repeats=repeats-1
+            start+=9
+            end+=9
+            #print(repeats,start,end)
+    else:
+        outList=requestBuses(APIkey,routeList)
+    return outList
 
 
-def requestBuses(APIkey):
+def requestBuses(APIkey,routeList):
+    
+    rtStr=''
+
+    for rt in routeList:
+        rtStr+=rt+','
+    rtStr=rtStr[:-1]
+
     param={
-        'rt':'A,B,C,D,F,R,28,38,80,84',
+        'rt':rtStr,
         'key':APIkey,
         'format':'json'
     }
@@ -44,18 +77,20 @@ def createFileName(stem):
     file=stem+time.strftime("%y%m%d%H%M%S")+'.json'
     return file
 
-
-
-def collectData(path):
+def collectData(path,rtList):
     stem=path+'data\\'
     logFile=stem+'log.txt'
 
     logf = open(logFile,'a')
+
     try:
         key=Config().API
         fileName=createFileName(stem)
-        request=requestBuses(key)
+        #print(key,rtList)
+        request=repeaterCheck(key,rtList)
+        #print(len(request))
         if type(request)==str:
+            print('Request Error')
             logf.write(request+'\n')
         writeToFile(request,fileName)
         logf.write(f'{dt.datetime.now().strftime("%m/%d/%y %H:%M:%S")}\tCompleted successfully\n')

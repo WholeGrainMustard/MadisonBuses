@@ -2,12 +2,13 @@
 File: combineFiles.py
 Purpose: Script to combine JSON files into a running csv.
 Created by: Alton Hipps
-Last edited: 03/22/25
+Last edited: 08/01/25
 '''
 
 import os
 import metroClasses
 import datetime as dt
+import pandas as pd
 
 def checkCount(fileList):
     if len(fileList)>1:
@@ -50,10 +51,14 @@ def getJSONs(stem):
                     #print(propPair)
                     vehicleDictBuild[propPair[0]]=propPair[1]
             #print(vehicleDictBuild)
-            if vehicleDictBuild['lat'] == '0.0' and vehicleDictBuild['lon'] == '0.0':
-                #print(f'No Data found: {vehicleDictBuild}')
+            try: #Error handling for bad JSON files
+                if vehicleDictBuild['lat'] == '0.0' and vehicleDictBuild['lon'] == '0.0':
+                    #print(f'No Data found: {vehicleDictBuild}')
+                    continue
+            except Exception as e:
+                print(f'Error with {file}: {e}')
                 continue
-            print(vehicleDictBuild)
+            #print(vehicleDictBuild)
             newVehicle=metroClasses.Record(vehicleDictBuild)
             objList.append(newVehicle)
         if len(objList)>1:
@@ -104,7 +109,7 @@ def routeDictToFile(inDict,filePath):
                 destFolder=manageFolder(destintation.replace('/','-').replace('.',''),routeFolder)
                 for bus in busList:
                     bDest=bus.recentRec.destination.replace('/','-').replace('.','')
-                    if bDest == destintation:
+                    if bDest == destintation: # find correct file
                         csvName=manageCSV(destFolder)
                         csvF=open(csvName,'a')
                         lastLine=''
@@ -114,6 +119,11 @@ def routeDictToFile(inDict,filePath):
                                 csvF.write(currentLine)
                                 lastLine=currentLine[:]
                         csvF.close()
+                        # open csv and drop duplicates
+                        df=pd.read_csv(csvName,names=['Time', 'Lat', 'Long', 'Heading', 'Route', 'Destination', 'Delay', 'STST', 'Fullness', 'BusID'])
+                        #print(df.columns)
+                        df.drop_duplicates(inplace=True,ignore_index=True,subset=['Lat', 'Long', 'Heading', 'Route', 'Destination', 'Delay', 'STST', 'Fullness', 'BusID'])
+                        df.to_csv(csvName,index=False)
                 
 def cleanUpJSONs(path):
     counter=0
@@ -128,7 +138,7 @@ def cleanUpJSONs(path):
     return f'Removed {counter} files'
 
 if __name__=="__main__":
-    testLoc='...\\Buses'
+    testLoc='C:\\Users\\ahipp\\Desktop\\Buses'
 
     locData=testLoc+'\\data'
     locOut=testLoc+'\\combined'

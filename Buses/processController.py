@@ -2,7 +2,7 @@
 File: processController.py
 Purpose: Control the data aquisition process
 Created by: Alton Hipps
-Last edited: 03/22/25
+Last edited: 08/01/25
 '''
 import datetime as dt
 import time
@@ -11,27 +11,39 @@ import grabWeather
 import downtimeCheck
 from config import Config
 
-con=Config()
-home=con.home
 
-i=0
-x=5
-while True:
-    i+=1
-    x+=1
+def controlProcess(pauseS=10,downS=300):
+    try:
+        print('Process Control Running')
+        
+        con=Config()
+        home=con.home
+        rts=con.routes
 
-    if downtimeCheck.checkTime(i) == False:
-        time.sleep(300)
-        continue
+        i=0
+        x=5
+        while True:
+            i+=1
+            x+=1
 
-    result=getData.collectData(home)
+            if downtimeCheck.checkTime(i) == False:
+                time.sleep(downS)
+                continue
 
-    if x>5:
-        weatherResult=grabWeather.checkWeather(home)
-        if weatherResult==True:
-            x=0
-    else:
-        weatherResult='Not Checked'
+            result=getData.collectData(home,rts)
+            if x>5:
+                weatherResult=grabWeather.checkWeather(home)
+                if weatherResult==True:
+                    x=0
+                con.logChecker()
+            else:
+                weatherResult='Not Checked'
 
-    print(f'Run {i}\tBuses: {result}\tWeather: {weatherResult}')
-    time.sleep(10)
+            print(f'Run {i}\tBuses: {result}\tWeather: {weatherResult}')
+            time.sleep(pauseS)
+
+    except KeyboardInterrupt:
+        print('Closing processController...')
+
+if __name__=='__main__':
+    controlProcess(pauseS=20)

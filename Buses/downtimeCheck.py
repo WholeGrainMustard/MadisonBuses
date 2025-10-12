@@ -2,7 +2,7 @@
 File: downtimeCheck.py
 Purpose: Check if it downtime should occur
 Created by: Alton Hipps
-Last edited: 03/28/25
+Last edited: 
 '''
 import time
 import datetime as dt

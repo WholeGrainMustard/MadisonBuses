@@ -9,23 +9,33 @@ import time
 import combineFiles
 from config import Config
 
-con=Config()
-loc=con.home
+def controlCombination(freqM=20):
+    try:
+        print('Combo Control Running')
 
-locData=loc+'data'
-locOut=loc+'combined'
+        con=Config()
+        loc=con.home
 
-while True:
+        locData=loc+'data'
+        locOut=loc+'combined'
 
-    ts=dt.datetime.now().strftime('%H:%M:%S')
-    jsons=combineFiles.getJSONs(locData)
-    if isinstance(jsons,bool):
-        print(f'{ts}\tSkipped')
-        time.sleep(60*20)
-        continue
-    d=combineFiles.buildRoutes(jsons)
-    combineFiles.routeDictToFile(d,locOut)
-    combineFiles.cleanUpJSONs(locData)
+        while True:
+            ts=dt.datetime.now().strftime('%H:%M:%S')
+            print(ts)
+            jsons=combineFiles.getJSONs(locData)
+            if isinstance(jsons,bool):
+                print(f'{ts}\tSkipped')
+                time.sleep(60*freqM)
+                continue
+            d=combineFiles.buildRoutes(jsons)
+            combineFiles.routeDictToFile(d,locOut)
+            combineFiles.cleanUpJSONs(locData)
 
-    print(f'{ts}\tComplete')
-    time.sleep(60*20)
+            print(f'{ts}\tComplete')
+            time.sleep(60*freqM)
+
+    except KeyboardInterrupt:
+        print('Closing combineController...')
+
+if __name__=='__main__':
+    controlCombination(freqM=30)

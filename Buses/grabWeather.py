@@ -102,6 +102,6 @@ def checkWeather(stem):
 
 
 if __name__=="__main__":
-    path='...\\Buses\\'
+    path='C:\\Users\\ahipp\\Desktop\\Buses\\'
     checkWeather(path)
     print('Complete')
